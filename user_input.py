@@ -154,3 +154,44 @@ def get_day(year, month):
 
     # Day input as an integer
     return int_day
+
+def get_restart_experience():
+    '''Asks the user for a yes or no if they want to restart the experience.
+
+    Args:
+        None
+    Returns:
+        (bool): True if user selected yes
+    '''
+    
+    do_request_restart_option = True
+
+    restart = input('\nWould you like to restart? Type \'yes\' or \'no\'.\n')
+
+    while do_request_restart_option:
+        if restart.lower() == 'yes': return True
+        if restart.lower() == 'no': return False
+        restart = input('\nPlease type \'yes\' or \'no\'.\n')
+
+def get_display_data(start_row, end_row):
+    '''Displays five lines of data if the user specifies that they would like to.
+    After displaying five lines, ask the user if they would like to see five more,
+    continuing asking until they say stop.
+
+    Args:
+        none.
+    Returns:
+        TODO: fill out return type and description (see get_city for an example)
+    '''
+
+    do_request_display_data_option = True
+
+    display = input('\nWould you like to view individual trip data from line {} to line {}?\n'
+                    'Type \'yes\' or \'no\'.\n'.format(start_row, end_row))
+
+    while do_request_display_data_option:
+        if display.lower() == 'yes': return True
+        if display.lower() == 'no': return False
+        display = input('\nPlease type \'yes\' or \'no\'.\n')
+    # TODO: handle raw input and complete function
+    

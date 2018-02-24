@@ -7,20 +7,7 @@ import formulas as f
 
 YEAR = 2017 # Constants for defining the year we are processing
 PRINT_DEBUG_LOGS = False # Constant for defining if we want to print debug logs for calculating time processing
-
-def display_data():
-    '''Displays five lines of data if the user specifies that they would like to.
-    After displaying five lines, ask the user if they would like to see five more,
-    continuing asking until they say stop.
-
-    Args:
-        none.
-    Returns:
-        TODO: fill out return type and description (see get_city for an example)
-    '''
-    display = input('\nWould you like to view individual trip data?'
-                    'Type \'yes\' or \'no\'.\n')
-    # TODO: handle raw input and complete function
+INDIVIDUAL_DATA_CHUNK_SIZE = 5
 
 def prepare_city_data(city_data):
     '''Process the city data object normalizing column names and data types
@@ -109,8 +96,8 @@ def statistics():
 
     if PRINT_DEBUG_LOGS: print('Calculating the first statistic...')
 
-    print('\nProcessing Data ... \n')
-    
+    print('\nProcessing Data... \n')
+
     # What is the most popular month for start time?
     # For calculating the most popular month - Time period needs to
     # be 'none'
@@ -248,11 +235,18 @@ def statistics():
     # End - Birth years
 
     # Display five lines of data at a time if user specifies that they would like to
-    display_data()
+    offset = 0
+        
+    while user_input.get_display_data(offset, offset + INDIVIDUAL_DATA_CHUNK_SIZE):
+        re.render_individual_data(city_data,offset,INDIVIDUAL_DATA_CHUNK_SIZE)
+        offset += INDIVIDUAL_DATA_CHUNK_SIZE
+
+        if offset > len(city_data):
+            re.render_no_data_available()
+            break
 
     # Restart?
-    restart = input('\nWould you like to restart? Type \'yes\' or \'no\'.\n')
-    if restart.lower() == 'yes':
+    if user_input.get_restart_experience():
         statistics()
 
 if __name__ == "__main__":

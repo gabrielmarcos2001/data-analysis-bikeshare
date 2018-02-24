@@ -253,6 +253,7 @@ def render_birth_years(min_year, max_year, most_popular_year, year, month, day):
     Returns:
         None
     '''
+
     if min_year:
         if month:
             if day:
@@ -304,6 +305,19 @@ def render_birth_years(min_year, max_year, most_popular_year, year, month, day):
         else:
             print("Most popular year of birth for {} could not be calculated".format(year))
 
+def render_individual_data(city_data, offset, chunk_size):
+
+    for i in range(chunk_size):
+
+        i += offset
+        if i > len(city_data)-1: break
+
+        print('Start Time: {} - End Time: {} - Trip Duration in seconds: {} - Start Station: {} - End Station: {} - User Type: {} - Gender: {} - Year of Birth: {}\n'
+            .format(city_data[i]["start_time"], city_data[i]["end_time"], city_data[i]["trip_duration"], city_data[i]["start_station"], city_data[i]["end_station"], city_data[i]["user_type"], city_data[i]["gender"], city_data[i]["birth_year"]))
+        i += 1
+
+def render_no_data_available():
+    print("\nThere is no more data available\n")
 
 intervals = (
         ('weeks', 604800),  # 60 * 60 * 24 * 7
@@ -314,6 +328,17 @@ intervals = (
         )
 
 def display_time(seconds, granularity=2):
+    ''' Returns a well-formatted string in the form of weeks, days, hours, etc from 
+    a specific number of seconds.
+    Function was implemented from: https://stackoverflow.com/questions/4048651/python-function-to-convert-seconds-into-minutes-hours-and-days
+
+    Args:
+        (int) total number of seconds
+        (int) level of granularity for the formatting - should be in between 1 - 5
+    Returns:
+        (str) well-formatted string
+    '''
+
     result = []
 
     for name, count in intervals:
@@ -323,4 +348,5 @@ def display_time(seconds, granularity=2):
             if value == 1:
                 name = name.rstrip('s')
             result.append("{} {}".format(value, name))
+            
     return ', '.join(result[:granularity])
