@@ -2,7 +2,7 @@ import datetime
 import calendar
 
 ## Filenames
-chicago = 'chicago_sh.csv'
+chicago = 'chicago.csv'
 new_york_city = 'new_york_city.csv'
 washington = 'washington.csv'
 
