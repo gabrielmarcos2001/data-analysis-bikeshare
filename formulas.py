@@ -2,7 +2,7 @@ import dic_utils as utils
 import calendar
 import datetime
 
-def birth_years(city_data, month, day):
+def birth_years(city_data, year, month, day):
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What are the earliest (i.e. oldest user), most recent (i.e. youngest user),
     and most popular birth years?
@@ -14,12 +14,8 @@ def birth_years(city_data, month, day):
     max_year = 0
 
     for data in city_data:
-        if month != None:
-            if data["start_time"].month != month["month_index"]:
-                continue
-        if day != None:
-            if data["start_time"].day != day:
-                continue
+        if not check_valid_start_date(data["start_time"],year,month,day):
+            continue
 
         if not data["birth_year"]:
             continue
@@ -37,7 +33,7 @@ def birth_years(city_data, month, day):
 
     return None if min_year == 0 else min_year, None if max_year == 0 else max_year, utils.get_max(year_count)
 
-def gender(city_data, month, day):
+def gender(city_data, year, month, day):
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What are the counts of gender?
     '''
@@ -46,21 +42,21 @@ def gender(city_data, month, day):
     gender_count = {}
 
     for data in city_data:
-        if month != None:
-            if data["start_time"].month != month["month_index"]:
-                continue
-        if day != None:
-            if data["start_time"].day != day:
-                continue
+        if not check_valid_start_date(data["start_time"],year,month,day):
+            continue
 
-        if data["gender"] in gender_count:
-            gender_count[data["gender"]] += 1
+        gender = data["gender"]
+        if gender == None or gender == "":
+            gender = "Undefined"
+
+        if gender in gender_count:
+            gender_count[gender] += 1
         else:
-            gender_count[data["gender"]] = 1
+            gender_count[gender] = 1
 
     return gender_count
 
-def popular_day(city_data, month):
+def popular_day(city_data, year, month):
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the most popular day of week (Monday, Tuesday, etc.) for start time?
     '''
@@ -69,9 +65,8 @@ def popular_day(city_data, month):
     day_popularity_counter = {}
 
     for data in city_data:
-        if month != None:
-            if data["start_time"].month != month["month_index"]:
-                continue
+        if not check_valid_start_date(data["start_time"],year,month,None):
+            continue
 
         if data["start_time"].weekday() in day_popularity_counter:
             day_popularity_counter[data["start_time"].weekday()] += 1
@@ -85,7 +80,7 @@ def popular_day(city_data, month):
     else:
         return None
 
-def popular_hour(city_data, month, day):
+def popular_hour(city_data, year, month, day):
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the most popular hour of day for start time?
     '''
@@ -94,12 +89,8 @@ def popular_hour(city_data, month, day):
     hour_popularity_counter = {}
 
     for data in city_data:
-        if month != None:
-            if data["start_time"].month != month["month_index"]:
-                continue
-        if day != None:
-            if data["start_time"].day != day:
-                continue
+        if not check_valid_start_date(data["start_time"],year,month,day):
+            continue
 
         if data["start_time"].hour in hour_popularity_counter:
             hour_popularity_counter[data["start_time"].hour] += 1
@@ -116,14 +107,21 @@ def popular_month(city_data, year):
     months_popularity_counter = {}
 
     for data in city_data:
+
+        if not check_valid_start_date(data["start_time"],year,None,None):
+            continue
+
         if data["start_time"].month in months_popularity_counter:
             months_popularity_counter[data["start_time"].month] += 1
         else:
             months_popularity_counter[data["start_time"].month] = 1
 
-    return datetime.date(year, utils.get_max(months_popularity_counter), 1).strftime('%B')
+    if months_popularity_counter:
+        return datetime.date(year, utils.get_max(months_popularity_counter), 1).strftime('%B')
+    else:
+        return None
 
-def popular_stations(city_data, month, day):
+def popular_stations(city_data, year, month, day):
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the most popular start station and most popular end station?
     '''
@@ -133,12 +131,8 @@ def popular_stations(city_data, month, day):
     end_station_popularity_counter = {}
 
     for data in city_data:
-        if month != None:
-            if data["start_time"].month != month["month_index"]:
-                continue
-        if day != None:
-            if data["start_time"].day != day:
-                continue
+        if not check_valid_start_date(data["start_time"],year,month,day):
+            continue
 
         if data["start_station"] in start_station_popularity_counter:
             start_station_popularity_counter[data["start_station"]] += 1
@@ -152,7 +146,7 @@ def popular_stations(city_data, month, day):
 
     return utils.get_max(start_station_popularity_counter), utils.get_max(end_station_popularity_counter)
 
-def popular_trip(city_data, month, day):
+def popular_trip(city_data, year, month, day):
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the most popular trip?
     '''
@@ -162,12 +156,8 @@ def popular_trip(city_data, month, day):
     stations_dict = {}
 
     for data in city_data:
-        if month != None:
-            if data["start_time"].month != month["month_index"]:
-                continue
-        if day != None:
-            if data["start_time"].day != day:
-                continue
+        if not check_valid_start_date(data["start_time"],year,month,day):
+            continue
 
         dict_key = str(hash(data["start_station"] + ";" + data["end_station"]))
 
@@ -187,7 +177,7 @@ def popular_trip(city_data, month, day):
         return None, None
     
 
-def trip_duration(city_data, month, day):
+def trip_duration(city_data, year, month, day):
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the total trip duration and average trip duration?
     '''
@@ -197,12 +187,8 @@ def trip_duration(city_data, month, day):
     average_trip_duration_seconds = 0
 
     for data in city_data:
-        if month != None:
-            if data["start_time"].month != month["month_index"]:
-                continue
-        if day != None:
-            if data["start_time"].day != day:
-                continue
+        if not check_valid_start_date(data["start_time"],year,month,day):
+            continue
 
         total_trip_duration_seconds += data["trip_duration"]
 
@@ -210,7 +196,7 @@ def trip_duration(city_data, month, day):
 
     return total_trip_duration_seconds, average_trip_duration_seconds
 
-def users(city_data, month, day):
+def users(city_data, year, month, day):
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What are the counts of each user type?
     '''
@@ -219,12 +205,8 @@ def users(city_data, month, day):
     user_types_count = {}
 
     for data in city_data:
-        if month != None:
-            if data["start_time"].month != month["month_index"]:
-                continue
-        if day != None:
-            if data["start_time"].day != day:
-                continue
+        if not check_valid_start_date(data["start_time"],year,month,day):
+            continue
 
         if data["user_type"] in user_types_count:
             user_types_count[data["user_type"]] += 1
@@ -232,3 +214,15 @@ def users(city_data, month, day):
             user_types_count[data["user_type"]] = 1
 
     return user_types_count
+
+def check_valid_start_date(date, year, month, day):
+    if month != None:
+        if date.month != month["month_index"]:
+            return False
+    if day != None:
+        if date.day != day:
+            return False
+    if year != None:
+        if date.year != year:
+            return False
+    return True

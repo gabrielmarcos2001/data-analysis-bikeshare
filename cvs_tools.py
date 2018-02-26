@@ -11,9 +11,12 @@ def read_csv(file):
     '''
     print('Reading data from {}...'.format(file))
         
-    with open(file,'rb') as f:
-        reader = unicodecsv.DictReader(f)
-        return list(reader)
+    try:
+        with open(file,'rb') as f:
+            reader = unicodecsv.DictReader(f)
+            return list(reader)
+    except FileNotFoundError:
+        return None
 
 def parse_date(date):
     '''Takes a date as a string, and returns a Python datetime object. 

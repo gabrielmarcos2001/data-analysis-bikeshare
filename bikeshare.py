@@ -37,11 +37,17 @@ def prepare_city_data(city_data):
             data["user_type"] = data["User Type"]
             del(data["User Type"])
 
-            data["gender"] = data["Gender"]
-            del(data["Gender"])
+            if "Gender" in data:
+                data["gender"] = data["Gender"]
+                del(data["Gender"])
+            else:
+                data["gender"] = None
 
-            data["birth_year"] = int(cvs_tools.parse_float(data["Birth Year"])) if cvs_tools.parse_float(data["Birth Year"]) else None
-            del(data["Birth Year"])
+            if "Birth Year" in data:
+                data["birth_year"] = int(cvs_tools.parse_float(data["Birth Year"])) if cvs_tools.parse_float(data["Birth Year"]) else None
+                del(data["Birth Year"])
+            else:
+                data["birth_year"] = None
 
     return city_data
 
@@ -56,18 +62,25 @@ def statistics():
     '''
 
     # Gets user raw input for city to process
-    city_file_name = user_input.get_city()
+    city_file_name, city_name = user_input.get_city()
 
     # Loads the data for the selectec city only if we don't have it preloaded
     if city_file_name not in cities_data:
+        
         start_time = time.time()
 
         # Data for the city goes to a dictionary after parsed. 
         # Parsing is used to assign proper data types and clean up 
         # column names
-        cities_data[city_file_name] = prepare_city_data(cvs_tools.read_csv(city_file_name))
-        
-        if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
+        raw_city_data = cvs_tools.read_csv(city_file_name)
+
+        # Validates the file exists in the root directory or displays an error message and terminates program otherwise
+        if raw_city_data:
+            cities_data[city_file_name] = prepare_city_data(raw_city_data)
+            if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
+        else:
+            re.render("Sorry, There was an error opening the data file. Please check {} exists in the root directory".format(city_file_name))
+            return
 
     # Selected city data
     city_data = cities_data[city_file_name]
@@ -96,7 +109,14 @@ def statistics():
 
     if PRINT_DEBUG_LOGS: print('Calculating the first statistic...')
 
-    print('\nProcessing Data... \n')
+    if month_data:
+        if day:
+            re.render('Processing Data for {} in {}, {} {}...'.format(city_name,day, month_data["month_name"],YEAR))
+        else:
+            re.render('Processing Data for {} in {} {}...'.format(city_name,month_data["month_name"],YEAR))
+    else:
+        re.render('Processing Data for {} in {}...'.format(city_name,YEAR))
+        
 
     # What is the most popular month for start time?
     # For calculating the most popular month - Time period needs to
@@ -110,7 +130,7 @@ def statistics():
         mp_month = f.popular_month(city_data, YEAR)
 
         # Prints the result for the most popular month
-        re.render_most_popular_month(mp_month, YEAR)
+        re.render_most_popular_month(mp_month)
 
         if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
         if PRINT_DEBUG_LOGS: print("Calculating the next statistic...")
@@ -126,10 +146,10 @@ def statistics():
         start_time = time.time()
         
         # Gets the most popular day
-        mp_day = f.popular_day(city_data, month_data)
+        mp_day = f.popular_day(city_data, YEAR, month_data)
         
         # Prints the most popular day
-        re.render_most_popular_day(mp_day, YEAR, month_data)
+        re.render_most_popular_day(mp_day)
         
         if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
         if PRINT_DEBUG_LOGS: print("Calculating the next statistic...") 
@@ -141,10 +161,10 @@ def statistics():
     start_time = time.time()
 
     # Gets the most popular hour 
-    mp_hour = f.popular_hour(city_data,month_data,day)
+    mp_hour = f.popular_hour(city_data,YEAR,month_data,day)
 
     # Prints the most popular hour
-    re.render_most_popular_hour(mp_hour, YEAR, month_data, day)
+    re.render_most_popular_hour(mp_hour)
 
     if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
     if PRINT_DEBUG_LOGS: print("Calculating the next statistic...")
@@ -155,10 +175,10 @@ def statistics():
 
     # What is the total trip duration and average trip duration?
     # Gets the total trip duration and average trip duration for the specified time period
-    total_trip_duration, average_trip_duration = f.trip_duration(city_data,month_data,day)
+    total_trip_duration, average_trip_duration = f.trip_duration(city_data,YEAR,month_data,day)
 
     # Prints the result for the total trip duration and average trip duration
-    re.render_trip_duration(total_trip_duration, average_trip_duration, YEAR, month_data, day)
+    re.render_trip_duration(total_trip_duration, average_trip_duration)
 
     if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
     if PRINT_DEBUG_LOGS: print("Calculating the next statistic...")
@@ -169,10 +189,10 @@ def statistics():
     start_time = time.time()
 
     # Gets the most popular start station and the most popular end station
-    mp_start_station, mp_end_station = f.popular_stations(city_data,month_data,day)
+    mp_start_station, mp_end_station = f.popular_stations(city_data,YEAR,month_data,day)
 
     # Prints the result for the most popular start station and most popular end station
-    re.render_most_popular_stations(mp_start_station, mp_end_station, YEAR, month_data,day)
+    re.render_most_popular_stations(mp_start_station, mp_end_station)
 
     if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
     if PRINT_DEBUG_LOGS: print("Calculating the next statistic...")
@@ -183,10 +203,10 @@ def statistics():
     start_time = time.time()
 
     # Gets the Start Station - End Station for the most popular trip
-    start_station, end_station = f.popular_trip(city_data,month_data,day)
+    start_station, end_station = f.popular_trip(city_data,YEAR,month_data,day)
 
     # Prints the most popular trip result
-    re.render_most_popular_trip(start_station, end_station, YEAR, month_data, day)
+    re.render_most_popular_trip(start_station, end_station)
 
     if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
     if PRINT_DEBUG_LOGS: print("Calculating the next statistic...")
@@ -197,10 +217,10 @@ def statistics():
     start_time = time.time()
 
     # Gets the counts for each user count
-    user_types = f.users(city_data,month_data,day)
+    user_types = f.users(city_data,YEAR,month_data,day)
 
     # Prints the result for each user count
-    re.render_user_types_count(user_types, YEAR, month_data,day)
+    re.render_user_types_count(user_types)
 
     if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
     if PRINT_DEBUG_LOGS: print("Calculating the next statistic...")
@@ -211,10 +231,10 @@ def statistics():
     start_time = time.time()
 
     # Gets the number of users by gender
-    gender_count = f.gender(city_data,month_data,day)
+    gender_count = f.gender(city_data,YEAR,month_data,day)
 
     # Prints the gender count
-    re.render_gender_count(gender_count, YEAR, month_data, day)
+    re.render_gender_count(gender_count)
 
     if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
     if PRINT_DEBUG_LOGS: print("Calculating the next statistic...")
@@ -225,10 +245,10 @@ def statistics():
 
     # What are the earliest (i.e. oldest user), most recent (i.e. youngest user), and
     # most popular birth years?
-    min_year, max_year, mp_year = f.birth_years(city_data,month_data,day)
+    min_year, max_year, mp_year = f.birth_years(city_data,YEAR,month_data,day)
 
     # Prints the Birth years result
-    re.render_birth_years(min_year, max_year, mp_year, YEAR, month_data, day)
+    re.render_birth_years(min_year, max_year, mp_year)
 
     if PRINT_DEBUG_LOGS: print("That took %s seconds." % (time.time() - start_time))
 
@@ -242,7 +262,7 @@ def statistics():
         offset += INDIVIDUAL_DATA_CHUNK_SIZE
 
         if offset > len(city_data):
-            re.render_no_data_available()
+            re.render("There is no more data available")
             break
 
     # Restart?

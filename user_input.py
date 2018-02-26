@@ -2,7 +2,7 @@ import datetime
 import calendar
 
 ## Filenames
-chicago = 'chicago_short.csv'
+chicago = 'chicago_sh.csv'
 new_york_city = 'new_york_city.csv'
 washington = 'washington.csv'
 
@@ -13,6 +13,7 @@ def get_city():
         none.
     Returns:
         (str) Filename for a city's bikeshare data.
+        (str) City input by the user
     '''
 
     # Initializes a dictionary for storing the city - filename reference
@@ -36,7 +37,7 @@ def get_city():
             request_city = False
 
     # City file name
-    return city_file[city.lower()]
+    return city_file[city.lower()], city
 
 
 def get_time_period():
@@ -154,6 +155,7 @@ def get_day(year, month):
 
     # Day input as an integer
     return int_day
+    
 
 def get_restart_experience():
     '''Asks the user for a yes or no if they want to restart the experience.
@@ -172,6 +174,7 @@ def get_restart_experience():
         if restart.lower() == 'yes': return True
         if restart.lower() == 'no': return False
         restart = input('\nPlease type \'yes\' or \'no\'.\n')
+
 
 def get_display_data(start_row, end_row):
     '''Displays five lines of data if the user specifies that they would like to.
